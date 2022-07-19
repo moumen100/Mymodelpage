@@ -1,0 +1,12 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "isCreatingSolution": true,
+    "environment": "onprem19",
+    "version": "1.4.0",
+    "libraryName": "extension-spfx-2019",
+    "libraryId": "a7add300-a6da-43c9-bd22-d5bc5a6e2b0a",
+    "packageManager": "npm",
+    "componentType": "extension",
+    "extensionType": "ListViewCommandSet"
+  }
+}

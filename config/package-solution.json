@@ -1,0 +1,26 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "model-page-extension-spfx-2019",
+    "id": "a7add300-a6da-43c9-bd22-d5bc5a6e2b0a",
+    "version": "1.0.0.24",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": false,
+    "features": [
+      {
+        "title": "Application Extension - Deployment of custom action.",
+        "description": "Deploys a custom action with ClientSideComponentId association",
+        "id": "2b2b2b5c-c28f-4f07-b0ad-6372a670eff8",
+        "version": "1.0.0.0",
+        "assets": {
+          "elementManifests": [
+            "elements.xml"
+          ]
+        }
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/BBS_CPA_ModelPageExtension.sppkg"
+  }
+}
