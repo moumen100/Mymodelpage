@@ -2,14 +2,14 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { BaseDialog, IDialogConfiguration } from '@microsoft/sp-dialog';
 
-import PageModelDialogContent from './PageModelDialogContent';
+import ProductModelDialogContent from './PageModelDialogContent';
 
-export default class PageModelDialog extends BaseDialog {
+export default class BBS_CPA_ProductModelDialog extends BaseDialog {
 
 
   public render(): void {
     
-    ReactDOM.render(<PageModelDialogContent 
+    ReactDOM.render(<ProductModelDialogContent 
       close={ this.close.bind(this) }
 
     />, this.domElement);

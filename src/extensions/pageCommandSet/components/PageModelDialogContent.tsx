@@ -14,11 +14,11 @@ import {
 }
   from 'office-ui-fabric-react';
 
-import { PageModelHelper } from './PageModelHelper';
+import { ProductModelHelper } from './PageModelHelper';
 import { sp as sp } from "@pnp/sp";
 import "./PageModelDialog.module.scss";
 
-export interface IPageModelDialogContentState {
+export interface BBS_CPA_IProductModelDialogContentState {
   hideDialog: boolean;
   optionSelected: string;
   newPageName: string;
@@ -29,14 +29,14 @@ export interface IPageModelDialogContentState {
   creationDone: boolean;
 }
 
-export interface IPageModelDialogContentProps {
+export interface BBS_CPA_IProductModelDialogContentProps {
   close: () => void;
 }
 
 
-export default class PageModelDialogContent extends React.Component<IPageModelDialogContentProps, IPageModelDialogContentState> {
+export default class BBS_CPA_ProductModelDialogContent extends React.Component<BBS_CPA_IProductModelDialogContentProps, BBS_CPA_IProductModelDialogContentState> {
 
-  constructor(props: IPageModelDialogContentProps) {
+  constructor(props: BBS_CPA_IProductModelDialogContentProps) {
     super(props);
     this.state = {
       hideDialog: false,
@@ -74,7 +74,7 @@ export default class PageModelDialogContent extends React.Component<IPageModelDi
           onDismiss={this._closeDialog}
           dialogContentProps={{
             type: DialogType.largeHeader,
-            title: "Modern Page Template with PnP/PnPjs"
+            title: "Créer un nouveau produit à partir d'une template"
           }}
 
           modalProps={{
@@ -85,18 +85,18 @@ export default class PageModelDialogContent extends React.Component<IPageModelDi
           {!this.state.creationDone && (
             <div>
               <ChoiceGroup
-                label="Pick one icon"
+                label="Choisir un type"
                 options={[
                   {
                     key: 'A',
                     iconProps: { iconName: 'FitWidth' },
-                    text: 'Custom Page',
+                    text: 'Nouveau template de produit',
                     checked: this.state.optionSelected === 'A'
                   },
                   {
                     key: 'B',
                     iconProps: { iconName: 'SearchAndApps' },
-                    text: 'From Template',
+                    text: 'depuis Template',
                     checked: this.state.optionSelected === 'B'
                   }
                 ]}
@@ -104,25 +104,24 @@ export default class PageModelDialogContent extends React.Component<IPageModelDi
                 required={true}
                 disabled={this.state.isLoading}
               />
-              <TextField label="Page name" value={this.state.newPageName} onChanged={this._onChangeNewPageName} placeholder="Insert page name"
-                readOnly={this.state.isLoading}
-              />
+              
 
               {this.state.optionSelected === 'A' && (
+                
                 <div>
-                  <h1>Description</h1>
-                  <div>
-                    {' '}
-                    This is an hard-coded template defined using PnP/PnPjs ClientSidePage. It will create 
-                    a page with a People Webpart on the right and a ClientSideText on the left. {' '}
-                  </div>
+                  <TextField label="Nom de Template " value={this.state.newPageName} onChanged={this._onChangeNewPageName} placeholder="Insérer nom de  Template"
+                readOnly={this.state.isLoading}
+              />
+                  
                 </div>
               )}
               {this.state.optionSelected === 'B' && (
                 
                 <div>
+                  <TextField label="Nom de Produit " value={this.state.newPageName} onChanged={this._onChangeNewPageName} placeholder="Insérer nom de  Produit"
+                readOnly={this.state.isLoading}
+              />
                   {console.log(this.state.allItems)}
-                  <h1>Description</h1>
                   <div>
                     {' '}
                     <Dropdown
@@ -168,7 +167,7 @@ export default class PageModelDialogContent extends React.Component<IPageModelDi
   private _executeAction = (): void => {
     this.setState({ isLoading: true });
     let selected = this.state.selectedItem ? this.state.selectedItem.key : "";
-    var resu: Promise<string> = PageModelHelper.createCustomPage(this.state.newPageName, this.state.optionSelected, selected);
+    var resu: Promise<string> = ProductModelHelper.createCustomPage(this.state.newPageName, this.state.optionSelected, selected);
     resu.then(ss => {
       console.log(ss);
       this.setState({ isLoading: false, creationDone: true });

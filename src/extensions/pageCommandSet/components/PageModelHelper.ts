@@ -16,7 +16,7 @@ export declare namespace MyClientSideWebpartPropertyTypes {
     }
 }
 
-export class PageModelHelper {
+export class ProductModelHelper {
 
     public static async  getInfos(pagename: string): Promise<string> {
 
@@ -33,7 +33,7 @@ export class PageModelHelper {
             case 'A':
                 const page = await sp.web.addClientSidePage(pagename + ".aspx");
                 console.log("pagetype" + pageType);
-
+                
                 const partDefs = await sp.web.getClientSideWebParts();
                 console.log("case a");
                 const section = page.addSection();
@@ -75,6 +75,7 @@ export class PageModelHelper {
 
                 page.disableComments();
                 await page.save();
+                
                 console.log("case saved");
                 break;
             case 'B':

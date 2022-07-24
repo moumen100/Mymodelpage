@@ -7,7 +7,7 @@ import {
   IListViewCommandSetExecuteEventParameters
 } from '@microsoft/sp-listview-extensibility';
 
-import PageModelDialog from './components/PageModelDialog';
+import ProductModelDialog from './components/PageModelDialog';
 import { setup as pnpSetup } from "@pnp/common";
 import { Dialog } from '@microsoft/sp-dialog';
 
@@ -53,7 +53,7 @@ export default class BBS_CPA_pageCommandSetCommandSet extends BaseListViewComman
 
     switch (event.itemId) {
       case 'COMMAND_1':
-        const dialog: PageModelDialog = new PageModelDialog();
+        const dialog: ProductModelDialog = new ProductModelDialog();
         dialog.show();
 
         break;
