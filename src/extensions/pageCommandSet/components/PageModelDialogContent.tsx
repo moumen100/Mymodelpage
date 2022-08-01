@@ -17,52 +17,79 @@ import {
 import { ProductModelHelper } from './PageModelHelper';
 import { sp as sp } from "@pnp/sp";
 import "./PageModelDialog.module.scss";
+import IpageModel from '../Models/IPageModels';
+import IModelsTypes from '../Models/IModelsTypes';
+import { Web } from "@pnp/sp/";
+import "@pnp/sp/webs";
+import "@pnp/sp/lists";
 
 export interface BBS_CPA_IProductModelDialogContentState {
   hideDialog: boolean;
   optionSelected: string;
   newPageName: string;
-  selectedItem?: { key: string | number | undefined };
-  selectedItems: string[];
-  allItems: any[];
+  selectedModel?: { key: string | number | undefined };
+  selectedModels: string[];
+  allIModels: IpageModel[];
   isLoading: boolean;
   creationDone: boolean;
+  ModelsTypes : IModelsTypes[]
+  selectedModelsType : { key: string | number | undefined };
 }
 
 export interface BBS_CPA_IProductModelDialogContentProps {
   close: () => void;
+  currentWeb:string
 }
 
 
 export default class BBS_CPA_ProductModelDialogContent extends React.Component<BBS_CPA_IProductModelDialogContentProps, BBS_CPA_IProductModelDialogContentState> {
-
+  MyWeb:Web;
   constructor(props: BBS_CPA_IProductModelDialogContentProps) {
     super(props);
     this.state = {
       hideDialog: false,
       optionSelected: 'A',
       newPageName: "",
-      selectedItem: null,
-      selectedItems: null,
-      allItems: null,
+      selectedModel: null,
+      selectedModels: null,
+      allIModels: [],
       isLoading: false,
-      creationDone: false
+      creationDone: false,
+      ModelsTypes:[],
+      selectedModelsType : null
     };
-
-    sp.web.lists.getByTitle("Site Pages").items.filter("Model eq 'Product'").select("Title,FileRef").getAll().then((items: any[]) => {
-      var tmpItems: any[] = new Array();
+    
+      this.MyWeb = this.props.currentWeb ?  new Web( this.props.currentWeb) : sp.web
+    this.MyWeb.lists.getByTitle("PageModelType").items.select("Id,Title,Description").getAll().then((items: IModelsTypes[]) => {
+      var tmpItems: IModelsTypes[] = new Array();
       //DropDown initialization
+      items.forEach(element => {
+        var item = { Id: element["Id"], Title: element["Title"], Description: element["Description"] };
+        tmpItems.push(item);
+      });
+      this.setState({ ModelsTypes: tmpItems });
+      console.log("Checking values ----");
+      console.log( this.state.ModelsTypes)
+    });
+  }
+  
+  public async GetTemplates(ModelType:string) : Promise<IpageModel[]> {
+    console.log("GetTemplates Start with param : "+ ModelType)
+    var tmpItems: IpageModel[] = new Array();
+    // .filter(`TypeTitle eq '${ModelType}'`)
+    this.MyWeb.lists.getByTitle("Site Pages").items.expand("ModelType").select("Title,FileRef,ModelType/Title").filter(`ModelTypeId eq '${ModelType}'`).getAll().then((items: any[]) => {
+      //DropDown initialization
+      console.log("Requests Values " + items)
       items.forEach(element => {
         var item = { key: element["FileRef"], text: element["Title"] };
         tmpItems.push(item);
       });
       console.log("Checking values ----");
         console.log(tmpItems);
-      this.setState({ allItems: tmpItems });
+      
     });
-   
+    return tmpItems
   }
-
 
   public render() {
 
@@ -74,7 +101,7 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
           onDismiss={this._closeDialog}
           dialogContentProps={{
             type: DialogType.largeHeader,
-            title: "Créer un nouveau produit à partir d'une template"
+            title: "créer une page suite au modèle"
           }}
 
           modalProps={{
@@ -112,23 +139,37 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
                   <TextField label="Nom de Template " value={this.state.newPageName} onChanged={this._onChangeNewPageName} placeholder="Insérer nom de  Template"
                 readOnly={this.state.isLoading}
               />
-                  
+                  <Dropdown
+                      label="Page Model type"
+                      selectedKey={this.state.selectedModelsType ? this.state.selectedModelsType.key : undefined}
+                      onChanged= { this.changeModelTypeState}
+                      options={this.state.ModelsTypes.map(m=> {return {key:m.Id, text:m.Title}})}
+                      disabled={this.state.isLoading}
+                    />
                 </div>
+
               )}
               {this.state.optionSelected === 'B' && (
                 
                 <div>
-                  <TextField label="Nom de Produit " value={this.state.newPageName} onChanged={this._onChangeNewPageName} placeholder="Insérer nom de  Produit"
+                  <TextField label="Nom de Produit " value={this.state.newPageName} onChanged={this._onChangeNewPageName} placeholder="Insérer nom de Produit"
                 readOnly={this.state.isLoading}
               />
-                  {console.log(this.state.allItems)}
+              <Dropdown
+                      label="Page Model type"
+                      selectedKey={this.state.selectedModelsType ? this.state.selectedModelsType.key : undefined}
+                      onChanged= { this.changeModelTypeState}
+                      options={this.state.ModelsTypes.map(m=> {return {key:m.Id, text:m.Title}})}
+                      disabled={this.state.isLoading}
+                    />
+                  {console.log(this.state.allIModels)}
                   <div>
                     {' '}
                     <Dropdown
                       label="Page Templates"
-                      selectedKey={this.state.selectedItem ? this.state.selectedItem.key : undefined}
+                      selectedKey={this.state.selectedModel ? this.state.selectedModel.key : undefined}
                       onChanged={this.changeState}
-                      options={this.state.allItems}
+                      options={this.state.allIModels}
                       disabled={this.state.isLoading}
                     />
 
@@ -160,14 +201,21 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
   }
 
   public changeState = (evt: any): void => {
-    this.setState({ selectedItem: evt });
+    this.setState({ selectedModel: evt });
   }
-
+  public  changeModelTypeState = (evt: any): void => {
+    console.log("Model type change event triigered")
+     this.GetTemplates(evt.key).then( ListTemplate => {
+      this.setState({ selectedModelsType:evt,allIModels:ListTemplate  });
+     })
+  }
 
   private _executeAction = (): void => {
     this.setState({ isLoading: true });
-    let selected = this.state.selectedItem ? this.state.selectedItem.key : "";
-    var resu: Promise<string> = ProductModelHelper.createCustomPage(this.state.newPageName, this.state.optionSelected, selected);
+    let selected = this.state.selectedModel ? this.state.selectedModel.key : "";
+    let ModelTypeSelected = this.state.selectedModelsType ? this.state.selectedModelsType.key : "";
+    const ModelHelper = new ProductModelHelper(this.MyWeb)
+    var resu: Promise<string> = ModelHelper.createCustomPage(this.state.newPageName, this.state.optionSelected, selected, ModelTypeSelected);
     resu.then(ss => {
       console.log(ss);
       this.setState({ isLoading: false, creationDone: true });
@@ -191,6 +239,8 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
   private _closeDialog = (): void => {
     this.props.close();
     this.setState({ hideDialog: true });
+    window.location.reload();
+
 
   }
 

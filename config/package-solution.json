@@ -3,7 +3,7 @@
   "solution": {
     "name": "model-page-extension-spfx-2019",
     "id": "a7add300-a6da-43c9-bd22-d5bc5a6e2b0a",
-    "version": "1.0.0.24",
+    "version": "1.0.0.26",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": false,
     "features": [

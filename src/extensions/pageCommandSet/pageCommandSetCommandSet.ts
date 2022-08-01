@@ -53,13 +53,11 @@ export default class BBS_CPA_pageCommandSetCommandSet extends BaseListViewComman
 
     switch (event.itemId) {
       case 'COMMAND_1':
-        const dialog: ProductModelDialog = new ProductModelDialog();
+        const dialog: ProductModelDialog = new ProductModelDialog(this.context.pageContext.web.absoluteUrl);
         dialog.show();
 
         break;
-        case 'COMMAND_2':
-          Dialog.alert("Command 2 run");
-          break;
+        
       default:
         throw new Error('Unknown command');
 

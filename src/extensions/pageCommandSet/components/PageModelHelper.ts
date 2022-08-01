@@ -2,9 +2,10 @@ import {
     ClientSideText, 
     ClientSideWebpart,
     sp,
-    ClientSidePage
+    ClientSidePage,
+    Field,
+    Fields
 } from "@pnp/sp";
-
 
 export declare namespace MyClientSideWebpartPropertyTypes {
     /**
@@ -17,24 +18,28 @@ export declare namespace MyClientSideWebpartPropertyTypes {
 }
 
 export class ProductModelHelper {
-
-    public static async  getInfos(pagename: string): Promise<string> {
-
-        var resultData: any = await sp.web.lists.getByTitle("Site Pages")
-            .items.getById(15)
-            .select("Title")
-            .get();
-
-        return await resultData.Title;
+    private MyWeb;
+    constructor(Web) {
+        this.MyWeb = Web
     }
 
-    public static async createCustomPage(pagename: string, pageType: string, templatePageUrl: any): Promise<string> {
+    // public static async  getInfos(pagename: string): Promise<string> {
+
+    //     var resultData: any = await  .lists.getByTitle("Site Pages")
+    //         .items.getById(15)
+    //         .select("Title")
+    //         .get();
+
+    //     return await resultData.Title;
+    // }
+
+    public  async createCustomPage(pagename: string, pageType: string, templatePageUrl: any, ModelTypeId:any): Promise<string> {
         switch (pageType) {
             case 'A':
-                const page = await sp.web.addClientSidePage(pagename + ".aspx");
+                const page = await this.MyWeb.addClientSidePage(pagename + ".aspx");
                 console.log("pagetype" + pageType);
                 
-                const partDefs = await sp.web.getClientSideWebParts();
+                const partDefs = await this.MyWeb.getClientSideWebParts();
                 console.log("case a");
                 const section = page.addSection();
                 console.log("section added");
@@ -75,22 +80,63 @@ export class ProductModelHelper {
 
                 page.disableComments();
                 await page.save();
-                
+                await this.GetUpdatePage("ModelTypeId", ModelTypeId,pagename)
+                // const e= await this.GetPageUrl(pagename)
+                // console.log("PageUrl: ")
+                // console.log(e)
                 console.log("case saved");
                 break;
             case 'B':
                 console.log("case b - start");
-                const templatePage = await ClientSidePage.fromFile(sp.web.getFileByServerRelativeUrl(templatePageUrl));
-                await templatePage.copyPage(sp.web, pagename + ".aspx", pagename, false);
+                const templatePage = await ClientSidePage.fromFile(this.MyWeb.getFileByServerRelativeUrl(templatePageUrl));
+                await templatePage.copyPage(this.MyWeb, pagename + ".aspx", pagename, false);
                 console.log("case b - end");
+
+                // window.location.href= await this.GetPageUrl(pagename)
+                await this.GetUpdatePage("PageTypeId", ModelTypeId,pagename)
                 break;
             default:
                 break;
         }
 
-
-
         return await "done";
     }
+
+
+
+
+    public  async GetUpdatePage(fieldname:string, newvalue:any,pageTitle:string) : Promise<void> {
+        console.log("fields: ")
+        console.log(fieldname)
+
+        const pageObj = new Object()
+
+         pageObj[fieldname] = newvalue 
+            console.log("pageObje:")
+            console.log(pageObj)
+
+            const Pages = await this.MyWeb.lists.getByTitle("Site Pages")
+
+            const MyPAge: any[] = await Pages.items.top(1).filter("Title eq '"+pageTitle+"'").get()     
+            console.log("MyPage: ")
+            console.log(MyPAge)
+        if (MyPAge.length>0) {
+                                await Pages.items.getById(MyPAge[0].Id).update({...pageObj})
+                             }
+            
+    }
+    
+
+    public  async GetPageUrl(pageTitle:string) : Promise<string> {
+        console.log("start geturl function")
+        const Pages = await this.MyWeb.lists.getByTitle("Site Pages")
+        const MyPAge: any[] = await Pages.items.top(1).filter("Title eq '"+pageTitle+"'").select("Title,FileRef").get()     
+        console.log(MyPAge)
+    if (MyPAge.length>0) {
+        console.log(MyPAge[0].FileRef)
+        console.log(this.MyWeb.toUrl())
+                                return this.MyWeb.getFileByServerRelativeUrl(MyPAge[0].FileRef).toUrl()                        }
+        
+}
 }
 
