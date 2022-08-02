@@ -95,7 +95,7 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
           onDismiss={this._closeDialog}
           dialogContentProps={{
             type: DialogType.largeHeader,
-            title: "créer une page suite au modèle"
+            title: "Créer une page à partir d'un modèle"
           }}
 
           modalProps={{
@@ -111,13 +111,13 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
                   {
                     key: 'A',
                     iconProps: { iconName: 'FitWidth' },
-                    text: 'Nouveau template de produit',
+                    text: 'Nouveau modèle',
                     checked: this.state.optionSelected === 'A'
                   },
                   {
                     key: 'B',
                     iconProps: { iconName: 'SearchAndApps' },
-                    text: 'depuis Template',
+                    text: 'Depuis un modèle ',
                     checked: this.state.optionSelected === 'B'
                   }
                 ]}
@@ -130,11 +130,11 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
               {this.state.optionSelected === 'A' && (
                 
                 <div>
-                  <TextField label="Nom de Template " value={this.state.newPageName} onChanged={this._onChangeNewPageName} placeholder="Insérer nom de  Template"
+                  <TextField label="Intitulé de modèle " value={this.state.newPageName} onChanged={this._onChangeNewPageName} placeholder="Insérer nom de  Template"
                 readOnly={this.state.isLoading}
               />
                   <Dropdown
-                      label="Page Model type"
+                      label="Catégorie du modèle"
                       selectedKey={this.state.selectedModelsType ? this.state.selectedModelsType.key : undefined}
                       onChanged= { this.changeModelTypeState}
                       options={this.state.ModelsTypes.map(m=> {return {key:m.Id, text:m.Title}})}
@@ -146,11 +146,11 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
               {this.state.optionSelected === 'B' && (
                 
                 <div>
-                  <TextField label="Nom de Produit " value={this.state.newPageName} onChanged={this._onChangeNewPageName} placeholder="Insérer nom de Produit"
+                  <TextField label="Intitulé de la page" value={this.state.newPageName} onChanged={this._onChangeNewPageName} placeholder="Insérer nom de Produit"
                 readOnly={this.state.isLoading}
               />
               <Dropdown
-                      label="Page Model type"
+                      label="Catégorie du modèle "
                       selectedKey={this.state.selectedModelsType ? this.state.selectedModelsType.key : undefined}
                       onChanged= { this.changeModelTypeState}
                       options={this.state.ModelsTypes.map(m=> {return {key:m.Id, text:m.Title}})}
@@ -160,7 +160,7 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
                   <div>
                     {' '}
                     <Dropdown
-                      label="Page Templates"
+                      label="Modèle"
                       selectedKey={this.state.selectedModel ? this.state.selectedModel.key : undefined}
                       onChanged={this.changeState}
                       options={this.state.allIModels}
@@ -173,8 +173,8 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
               )}
               {!this.state.isLoading && (<div>
                 <DialogFooter>
-                  <PrimaryButton onClick={this._executeAction} text="Go!" />
-                  <DefaultButton onClick={this._closeDialog} text="Cancel" />
+                  <PrimaryButton onClick={this._executeAction} text="Créer" />
+                  <DefaultButton onClick={this._closeDialog} text="Annuler" />
                 </DialogFooter>
               </div>)}
             </div>
@@ -183,9 +183,9 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
           <Spinner size={SpinnerSize.large} label="Please, wait.." ariaLive="assertive" hidden={!this.state.isLoading} />
           {this.state.creationDone && (
             <div>
-              <Label>Done!</Label>
+              <Label>Votre modèle a été bien créé</Label>
               <DialogFooter>
-                <PrimaryButton onClick={this._closeDialog} text="Close" />
+                <PrimaryButton onClick={this._closeDialog} text="Fermer" />
               </DialogFooter>
             </div>
           )}
