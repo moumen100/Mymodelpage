@@ -18,10 +18,7 @@ export declare namespace MyClientSideWebpartPropertyTypes {
 }
 
 export class ProductModelHelper {
-    private MyWeb;
-    constructor(Web) {
-        this.MyWeb = Web
-    }
+    
 
     // public static async  getInfos(pagename: string): Promise<string> {
 
@@ -36,10 +33,10 @@ export class ProductModelHelper {
     public  async createCustomPage(pagename: string, pageType: string, templatePageUrl: any, ModelTypeId:any): Promise<string> {
         switch (pageType) {
             case 'A':
-                const page = await this.MyWeb.addClientSidePage(pagename + ".aspx");
+                const page = await sp.web.addClientSidePage(pagename + ".aspx");
                 console.log("pagetype" + pageType);
                 
-                const partDefs = await this.MyWeb.getClientSideWebParts();
+                const partDefs = await sp.web.getClientSideWebParts();
                 console.log("case a");
                 const section = page.addSection();
                 console.log("section added");
@@ -88,8 +85,8 @@ export class ProductModelHelper {
                 break;
             case 'B':
                 console.log("case b - start");
-                const templatePage = await ClientSidePage.fromFile(this.MyWeb.getFileByServerRelativeUrl(templatePageUrl));
-                await templatePage.copyPage(this.MyWeb, pagename + ".aspx", pagename, false);
+                const templatePage = await ClientSidePage.fromFile(sp.web.getFileByServerRelativeUrl(templatePageUrl));
+                await templatePage.copyPage(sp.web, pagename + ".aspx", pagename, false);
                 console.log("case b - end");
 
                 // window.location.href= await this.GetPageUrl(pagename)
@@ -115,7 +112,7 @@ export class ProductModelHelper {
             console.log("pageObje:")
             console.log(pageObj)
 
-            const Pages = await this.MyWeb.lists.getByTitle("Site Pages")
+            const Pages = await sp.web.lists.getByTitle("Site Pages")
 
             const MyPAge: any[] = await Pages.items.top(1).filter("Title eq '"+pageTitle+"'").get()     
             console.log("MyPage: ")
@@ -129,13 +126,13 @@ export class ProductModelHelper {
 
     public  async GetPageUrl(pageTitle:string) : Promise<string> {
         console.log("start geturl function")
-        const Pages = await this.MyWeb.lists.getByTitle("Site Pages")
+        const Pages = await sp.web.lists.getByTitle("Site Pages")
         const MyPAge: any[] = await Pages.items.top(1).filter("Title eq '"+pageTitle+"'").select("Title,FileRef").get()     
         console.log(MyPAge)
     if (MyPAge.length>0) {
         console.log(MyPAge[0].FileRef)
-        console.log(this.MyWeb.toUrl())
-                                return this.MyWeb.getFileByServerRelativeUrl(MyPAge[0].FileRef).toUrl()                        }
+        console.log(sp.web.toUrl())
+                                return sp.web.getFileByServerRelativeUrl(MyPAge[0].FileRef).toUrl()                        }
         
 }
 }

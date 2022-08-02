@@ -19,9 +19,6 @@ import { sp as sp } from "@pnp/sp";
 import "./PageModelDialog.module.scss";
 import IpageModel from '../Models/IPageModels';
 import IModelsTypes from '../Models/IModelsTypes';
-import { Web } from "@pnp/sp/";
-import "@pnp/sp/webs";
-import "@pnp/sp/lists";
 
 export interface BBS_CPA_IProductModelDialogContentState {
   hideDialog: boolean;
@@ -38,12 +35,10 @@ export interface BBS_CPA_IProductModelDialogContentState {
 
 export interface BBS_CPA_IProductModelDialogContentProps {
   close: () => void;
-  currentWeb:string
 }
 
 
 export default class BBS_CPA_ProductModelDialogContent extends React.Component<BBS_CPA_IProductModelDialogContentProps, BBS_CPA_IProductModelDialogContentState> {
-  MyWeb:Web;
   constructor(props: BBS_CPA_IProductModelDialogContentProps) {
     super(props);
     this.state = {
@@ -59,8 +54,7 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
       selectedModelsType : null
     };
     
-      this.MyWeb = this.props.currentWeb ?  new Web( this.props.currentWeb) : sp.web
-    this.MyWeb.lists.getByTitle("PageModelType").items.select("Id,Title,Description").getAll().then((items: IModelsTypes[]) => {
+    sp.web.lists.getByTitle("PageModelType").items.select("Id,Title,Description").getAll().then((items: IModelsTypes[]) => {
       var tmpItems: IModelsTypes[] = new Array();
       //DropDown initialization
       items.forEach(element => {
@@ -77,7 +71,7 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
     console.log("GetTemplates Start with param : "+ ModelType)
     var tmpItems: IpageModel[] = new Array();
     // .filter(`TypeTitle eq '${ModelType}'`)
-    this.MyWeb.lists.getByTitle("Site Pages").items.expand("ModelType").select("Title,FileRef,ModelType/Title").filter(`ModelTypeId eq '${ModelType}'`).getAll().then((items: any[]) => {
+    sp.web.lists.getByTitle("Site Pages").items.expand("ModelType").select("Title,FileRef,ModelType/Title").filter(`ModelTypeId eq '${ModelType}'`).getAll().then((items: any[]) => {
       //DropDown initialization
       console.log("Requests Values " + items)
       items.forEach(element => {
@@ -213,8 +207,8 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
   private _executeAction = (): void => {
     this.setState({ isLoading: true });
     let selected = this.state.selectedModel ? this.state.selectedModel.key : "";
-    let ModelTypeSelected = this.state.selectedModelsType ? this.state.selectedModelsType.key : "";
-    const ModelHelper = new ProductModelHelper(this.MyWeb)
+    let ModelTypeSelected ; if ( this.state.selectedModelsType)  { ModelTypeSelected = this.state.selectedModelsType.key }else {ModelTypeSelected =  ""};
+    const ModelHelper = new ProductModelHelper()
     var resu: Promise<string> = ModelHelper.createCustomPage(this.state.newPageName, this.state.optionSelected, selected, ModelTypeSelected);
     resu.then(ss => {
       console.log(ss);

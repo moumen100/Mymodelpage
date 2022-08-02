@@ -5,16 +5,12 @@ import { BaseDialog, IDialogConfiguration } from '@microsoft/sp-dialog';
 import ProductModelDialogContent from './PageModelDialogContent';
 
 export default class BBS_CPA_ProductModelDialog extends BaseDialog {
-  private WebUrl:string;
-  constructor(weburl:string) {
-    super()
-    this.WebUrl = weburl
-  }
+ 
 
   public render(): void {
     
     ReactDOM.render(<ProductModelDialogContent 
-      close={ this.close.bind(this) } currentWeb = {this.WebUrl}
+      close={ this.close.bind(this) } 
 
     />, this.domElement);
 

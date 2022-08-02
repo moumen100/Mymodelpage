@@ -53,7 +53,7 @@ export default class BBS_CPA_pageCommandSetCommandSet extends BaseListViewComman
 
     switch (event.itemId) {
       case 'COMMAND_1':
-        const dialog: ProductModelDialog = new ProductModelDialog(this.context.pageContext.web.absoluteUrl);
+        const dialog: ProductModelDialog = new ProductModelDialog();
         dialog.show();
 
         break;
