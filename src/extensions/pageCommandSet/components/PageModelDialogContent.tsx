@@ -39,6 +39,10 @@ export interface BBS_CPA_IProductModelDialogContentProps {
 
 
 export default class BBS_CPA_ProductModelDialogContent extends React.Component<BBS_CPA_IProductModelDialogContentProps, BBS_CPA_IProductModelDialogContentState> {
+  /**
+   * Constructeur pour initialiser  state de component React
+   * @param props Objet des Props de component React
+   */
   constructor(props: BBS_CPA_IProductModelDialogContentProps) {
     super(props);
     this.state = {
@@ -53,27 +57,35 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
       ModelsTypes:[],
       selectedModelsType : null
     };
-    
+    /**
+     * récupérer les types de modèles qui existe dans la liste sharepoint  "PageModelType"
+     * utilisons pnpJs afin de consummer les ressources SharePoint
+     */
     sp.web.lists.getByTitle("PageModelType").items.select("Id,Title,Description").getAll().then((items: IModelsTypes[]) => {
       var tmpItems: IModelsTypes[] = new Array();
       //DropDown initialization
       items.forEach(element => {
         var item = { Id: element["Id"], Title: element["Title"], Description: element["Description"] };
-        tmpItems.push(item);
+        tmpItems.push(item);  // assigner la liste des modèles sur la liste déroullante  
       });
-      this.setState({ ModelsTypes: tmpItems });
+      this.setState({ ModelsTypes: tmpItems }); // mettre à jour la liste de smodèles en changeant le state 
       console.log("Checking values ----");
       console.log( this.state.ModelsTypes)
     });
   }
-  
+  /**
+   * 
+   * @param ModelType récupérer la liste des pages en fonction de type de template choisis
+   * @returns retournner la liste des modèles des pages
+   */
   public async GetTemplates(ModelType:string) : Promise<IpageModel[]> {
     console.log("GetTemplates Start with param : "+ ModelType)
     var tmpItems: IpageModel[] = new Array();
-    // .filter(`TypeTitle eq '${ModelType}'`)
+    //récupérer la liste des Pages depuis la library des pages sur SharePoint  "Site Pages"  en filtrant par le Titre de type de modèle
     sp.web.lists.getByTitle("Site Pages").items.expand("ModelType").select("Title,FileRef,ModelType/Title").filter(`ModelTypeId eq '${ModelType}'`).getAll().then((items: any[]) => {
       //DropDown initialization
       console.log("Requests Values " + items)
+      //remplir la liste déroullante contient la liste des templates
       items.forEach(element => {
         var item = { key: element["FileRef"], text: element["Title"] };
         tmpItems.push(item);
@@ -105,10 +117,15 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
         >
           {!this.state.creationDone && (
             <div>
+                            {/* choix 1 pour créer un nouveau modèle  
+                                choix 2 pour créer a partie d'une template
+                            */}
               <ChoiceGroup
                 label="Choisir un type"
+                
                 options={[
                   {
+                    
                     key: 'A',
                     iconProps: { iconName: 'FitWidth' },
                     text: 'Nouveau modèle',
@@ -121,12 +138,12 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
                     checked: this.state.optionSelected === 'B'
                   }
                 ]}
-                onChange={this._onChange}
+                onChange={this._onChange} //en change le choix 
                 required={true}
                 disabled={this.state.isLoading}
               />
               
-
+                {/* contenu de choix 1 : créer un nouveau modèle */}
               {this.state.optionSelected === 'A' && (
                 
                 <div>
@@ -143,12 +160,14 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
                 </div>
 
               )}
+              {/* contenu de choix 2 : créer à partie d'un modèle  */}
               {this.state.optionSelected === 'B' && (
-                
+                  // titre de la page
                 <div>
                   <TextField label="Intitulé de la page" value={this.state.newPageName} onChanged={this._onChangeNewPageName} placeholder="Insérer nom de Produit"
                 readOnly={this.state.isLoading}
               />
+              {/* les catégories de modèle */}
               <Dropdown
                       label="Catégorie du modèle "
                       selectedKey={this.state.selectedModelsType ? this.state.selectedModelsType.key : undefined}
@@ -159,6 +178,7 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
                   {console.log(this.state.allIModels)}
                   <div>
                     {' '}
+                    {/* La liste des template */}
                     <Dropdown
                       label="Modèle"
                       selectedKey={this.state.selectedModel ? this.state.selectedModel.key : undefined}
@@ -171,9 +191,10 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
                   </div>
                 </div>
               )}
+              {/* footer de dialogue contient les Buttons d'actions Comfirer la création ou Annuller */}
               {!this.state.isLoading && (<div>
                 <DialogFooter>
-                  <PrimaryButton onClick={this._executeAction} text="Créer" />
+                  <PrimaryButton onClick={this._executeAction} text="Créer" /> 
                   <DefaultButton onClick={this._closeDialog} text="Annuler" />
                 </DialogFooter>
               </div>)}
@@ -193,43 +214,63 @@ export default class BBS_CPA_ProductModelDialogContent extends React.Component<B
       </div>
     );
   }
-
-  public changeState = (evt: any): void => {
-    this.setState({ selectedModel: evt });
-  }
-  public  changeModelTypeState = (evt: any): void => {
-    console.log("Model type change event triigered")
-     this.GetTemplates(evt.key).then( ListTemplate => {
-      this.setState({ selectedModelsType:evt,allIModels:ListTemplate  });
-     })
-  }
-
+  /**
+   * méthode s'execute lors de cliquer sur créer sur la dialogue 
+   */
   private _executeAction = (): void => {
     this.setState({ isLoading: true });
     let selected = this.state.selectedModel ? this.state.selectedModel.key : "";
     let ModelTypeSelected ; if ( this.state.selectedModelsType)  { ModelTypeSelected = this.state.selectedModelsType.key }else {ModelTypeSelected =  ""};
     const ModelHelper = new ProductModelHelper()
+    // / Faire appel à la méthode createCustomPage permet de créer un modèle ou apartir d'un modèle
+    // Prend en paramètre titre, 
+    // option selectioné : Soit créer un modèle soit apartir d'un modèle
+    //type de modèle selectionné 
     var resu: Promise<string> = ModelHelper.createCustomPage(this.state.newPageName, this.state.optionSelected, selected, ModelTypeSelected);
+    // roulle d'attente
     resu.then(ss => {
       console.log(ss);
       this.setState({ isLoading: false, creationDone: true });
     });
   }
 
+  /**
+   * évenement déclanche à chaque changement de type d'action 
+   * @param evt  Objet  évènement de JS
+   */
+  public changeState = (evt: any): void => {
+    this.setState({ selectedModel: evt })
+  }
+  /**
+   * évenement déclanche à chaque changement de type de modèle utilisé
+   * 
+   * @param evt Objet  évènement de JS
+   */
+  public  changeModelTypeState = (evt: any): void => {
+    console.log("Model type change event triigered")
+     this.GetTemplates(evt.key).then( ListTemplate => {
+      this.setState({ selectedModelsType:evt,allIModels:ListTemplate }); // changement de laliste des modèles en fonction de catégory choisis
+     })
+  }
+  /**
+   * évenement déclanche à chaque changement de titre de la page
+   * @param tmpPageName nom de la page
+   */
   private _onChangeNewPageName = (tmpPageName: any): void => {
     this.setState({ newPageName: tmpPageName });
   }
 
-
-
+  /**
+   * évènement en change type d'action 
+   * @param ev 
+   * @param option 
+   */
   private _onChange = (ev: React.FormEvent<HTMLInputElement>, option: any): void => {
     this.setState({ optionSelected: option.key });
   }
-
-  private _showDialog = (): void => {
-    this.setState({ hideDialog: false });
-  }
-
+  /**
+   * 
+   */
   private _closeDialog = (): void => {
     this.props.close();
     this.setState({ hideDialog: true });

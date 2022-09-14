@@ -30,34 +30,32 @@ export default class BBS_CPA_pageCommandSetCommandSet extends BaseListViewComman
   public onInit(): Promise<void> {
 
     Log.info(LOG_SOURCE, 'Initialized pageCommandSetCommandSet');
-
+    
     return super.onInit().then(_ => {
 
       // other init code may be present
 
       pnpSetup({
-        spfxContext: this.context
+        spfxContext: this.context // Assigner context à spfx
       });
     });
   }
-
-
-
   @override
   public onListViewUpdated(event: IListViewCommandSetListViewUpdatedParameters): void {
 
   }
 
   @override
+  /**
+   * Cette méthode permet de définir les actions à faire pour chaque buttons 
+   */
   public async onExecute(event: IListViewCommandSetExecuteEventParameters): Promise<void> {
 
     switch (event.itemId) {
-      case 'COMMAND_1':
-        const dialog: ProductModelDialog = new ProductModelDialog();
+      case 'COMMAND_1': //Action de commande 1
+        const dialog: ProductModelDialog = new ProductModelDialog(); // lancer le boite de dialogue 
         dialog.show();
-
         break;
-        
       default:
         throw new Error('Unknown command');
 
